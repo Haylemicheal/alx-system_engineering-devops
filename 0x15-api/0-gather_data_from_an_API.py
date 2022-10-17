@@ -1,17 +1,18 @@
 #!/usr/bin/python3
-"""This file will gather data form an API
 """
-if __name__ == "__main__":
-    from requests import get
-    from sys import argv
+uses a REST API to return inforamtion about an employee given their
+employee ID
+"""
+import requests
+import sys
 
-    user = get('https://jsonplaceholder.typicode.com/users/{}'.format(argv[1]))
-    url = get('https://jsonplaceholder.typicode.com/users/{}/todos'.format(argv[1]))
-    user = user.json()
-    url = url.json()
-    done = len([n for n in url if n['completed']])
-    not_done = len([m for m in url])
-    print("Employee {} is done with tasks({}/{}):".format(user['name'], done, not_done))
-    for task in url:
-        if task['completed'] is True:
-            print("\t {}".format(task['title']))
+
+if __name__ == "__main__":
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/{}".format(sys.argv[1])).json()
+    todos = requests.get(url + "todos", params={"userId": sys.argv[1]}).json()
+
+    completed = [t.get("title") for t in todos if t.get("completed") is True]
+    print("Employee {} is done with tasks({}/{}):".format(
+        user.get("name"), len(completed), len(todos)))
+    [print("\t {}".format(c)) for c in completed]
